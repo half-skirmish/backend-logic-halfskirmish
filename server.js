@@ -148,7 +148,7 @@ app.get("/get-user", authenticateToken, async (req, res) => {
 // ========================
 
 // Get All Blogs
-app.get("/get-all-blogs/", authenticateToken, async (req, res) => {
+app.get("/get-all-blogs/", async (req, res) => {
     try {
         const blogs = await Blog.find().sort({ createdAt: -1 });
         res.json({ 
