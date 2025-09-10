@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const slugify = require('slugify');
 
 // Models
 const User = require('./models/User');
@@ -31,9 +32,6 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// Helper function to generate slug
-const slugify = require('slugify');
-
 // ========================
 // AUTH ROUTES
 // ========================
@@ -47,15 +45,12 @@ app.post("/create-account", async (req, res) => {
     }
 
     try {
-        // Check if user exists
         const existingUser = await User.findOne({ $or: [{ username }, { email }] });
         if (existingUser) {
             return res.status(400).json({ error: true, message: 'Username or email already exists' });
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
-
         const newUser = await new User({
             name,
             username,
@@ -91,7 +86,6 @@ app.post("/login", async (req, res) => {
     }
 
     try {
-        // Find user by username or email
         const user = await User.findOne({ 
             $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }] 
         });
@@ -205,6 +199,8 @@ app.post("/add-blog", authenticateToken, async (req, res) => {
 
 // Edit Blog
 app.put("/edit-blog/:blogId", authenticateToken, async (req, res) => {
+    console.log('Edit blog route hit with ID:', req.params.blogId); // Debug log
+    
     const { title, content, coverImageUrl, tags } = req.body;
     const blogId = req.params.blogId;
 
@@ -294,6 +290,7 @@ app.get('/', (req, res) => {
 
 // 404 handler
 app.use((req, res) => {
+    console.log('404 - Route not found:', req.method, req.path); // Debug log
     res.status(404).json({ error: true, message: 'Route not found' });
 });
 
