@@ -255,7 +255,6 @@ app.put("/edit-blog/:blogId", authenticateToken, async (req, res) => {
     }
 });
 
-
 // Delete Blog
 app.delete("/delete-blog/:blogId", authenticateToken, async (req, res) => {
     const blogId = req.params.blogId;
