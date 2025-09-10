@@ -162,6 +162,61 @@ app.get("/get-all-blogs/", authenticateToken, async (req, res) => {
     }
 });
 
+// Get Single Blog by ID (Authenticated)
+app.get("/get-blog/:blogId", authenticateToken, async (req, res) => {
+    const blogId = req.params.blogId;
+
+    try {
+        const blog = await Blog.findById(blogId);
+        if (!blog) {
+            return res.status(404).json({ 
+                error: true, 
+                message: 'Blog not found' 
+            });
+        }
+
+        res.json({ 
+            error: false, 
+            blog, 
+            message: 'Blog retrieved successfully' 
+        });
+    } catch (err) {
+        console.error('Get blog error:', err);
+        // Handle invalid ObjectId format
+        if (err.name === 'CastError') {
+            return res.status(400).json({ 
+                error: true, 
+                message: 'Invalid blog ID format' 
+            });
+        }
+        res.status(500).json({ error: true, message: 'Internal Server Error' });
+    }
+});
+
+// Get Blog by Slug (Public - No Authentication)
+app.get("/blog/:slug", async (req, res) => {
+    const slug = req.params.slug;
+
+    try {
+        const blog = await Blog.findOne({ slug });
+        if (!blog) {
+            return res.status(404).json({ 
+                error: true, 
+                message: 'Blog not found' 
+            });
+        }
+
+        res.json({ 
+            error: false, 
+            blog, 
+            message: 'Blog retrieved successfully' 
+        });
+    } catch (err) {
+        console.error('Get blog by slug error:', err);
+        res.status(500).json({ error: true, message: 'Internal Server Error' });
+    }
+});
+
 // Add Blog
 app.post("/add-blog", authenticateToken, async (req, res) => {
     const { title, content, coverImageUrl, tags } = req.body;
